@@ -85,6 +85,76 @@ export function parseSnoozeOptions(value) {
   return options;
 }
 
+export function parseAllowedDomains(value) {
+  const parts = Array.isArray(value) ? value : String(value ?? "").split("|");
+  const domains = [];
+
+  for (const part of parts) {
+    const domain = normalizeHost(part);
+    if (domain && !domains.includes(domain)) {
+      domains.push(domain);
+    }
+  }
+
+  return domains;
+}
+
+function matchesDomainPattern(host, pattern) {
+  if (pattern === "*") {
+    return true;
+  }
+
+  if (!pattern.includes("*")) {
+    return host === pattern;
+  }
+
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`^${escaped.replace(/\*/g, ".*")}$`, "i");
+
+  return regex.test(host);
+}
+
+export function isHostAllowed(host, patterns) {
+  const normalized = normalizeHost(host);
+  if (!normalized) {
+    return false;
+  }
+
+  const domains = Array.isArray(patterns)
+    ? patterns
+    : parseAllowedDomains(patterns);
+
+  return domains.some((pattern) => {
+    const normalizedPattern = normalizeHost(pattern);
+    return (
+      normalizedPattern && matchesDomainPattern(normalized, normalizedPattern)
+    );
+  });
+}
+
+export function shouldForceMainDomain({
+  currentHost,
+  allowedDomains = [],
+  mainHost,
+} = {}) {
+  const current = normalizeHost(currentHost);
+  const main = normalizeHost(mainHost);
+  const domains = Array.isArray(allowedDomains)
+    ? allowedDomains
+    : parseAllowedDomains(allowedDomains);
+
+  if (!current || !main || domains.length === 0) {
+    return false;
+  }
+
+  // Never redirect the main host to itself, even when it is not listed.
+  if (current === main) {
+    return false;
+  }
+
+  return !isHostAllowed(current, domains);
+}
+
 export function buildCountryEndpoint(targetHost, path = COUNTRY_ENDPOINT_PATH) {
   const host = normalizeHost(targetHost);
   return host ? `https://${host}${path}` : null;

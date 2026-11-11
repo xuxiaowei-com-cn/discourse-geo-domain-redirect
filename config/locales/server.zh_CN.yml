@@ -4,5 +4,7 @@ zh_CN:
     geo_domain_redirect_header: "携带访客国家代码的请求头。除非 CDN 或反向代理使用其他请求头，否则保持 Ali-IP-Country 不变。"
     geo_domain_redirect_country_code: "触发提示的国家代码，例如 CN。"
     geo_domain_redirect_target_domain: "提示访客前往的域名，不包含协议和路径，例如 www.xuxiaowei.com.cn。"
+    geo_domain_redirect_main_domain: "未授权域名强制跳转到的主站域名。留空时使用 geo_domain_redirect_target_domain。"
+    geo_domain_redirect_allowed_domains: "允许访问本站的域名或子域名，支持 * 通配符，例如 example.com、*.example.com。通配符只匹配子域名，不包含主域名本身，主域名需要单独添加。留空则不启用域名限制；开发环境使用 localhost 时也需要加入。"
     geo_domain_redirect_use_target_domain_for_country: "使用配置的目标域名（如 www.xuxiaowei.com.cn）请求国家接口，而不是访客当前访问的域名。当前域名未透传 Ali-IP-Country 请求头时可开启。目标域名需要安装并启用本插件，且允许跨域请求；本插件已为接口添加 CORS 响应头。"
     geo_domain_redirect_snooze_options: "访客选择稍后提醒时可选的时长（天）。每个值会显示为一个按钮，按填写顺序排列。每项填写一个数字。"

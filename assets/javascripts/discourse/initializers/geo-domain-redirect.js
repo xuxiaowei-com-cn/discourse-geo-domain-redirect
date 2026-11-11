@@ -4,13 +4,46 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import GeoDomainRedirectModal from "../components/modal/geo-domain-redirect";
 import {
   buildCountryEndpoint,
+  buildRedirectUrl,
   isPromptSuppressed,
   normalizeHost,
+  parseAllowedDomains,
   parseSnoozeOptions,
+  shouldForceMainDomain,
   shouldPrompt,
 } from "../lib/geo-domain-redirect";
 
 let hasChecked = false;
+
+function forceMainDomainIfNeeded(siteSettings) {
+  if (!siteSettings.geo_domain_redirect_enabled) {
+    return false;
+  }
+
+  const currentHost = normalizeHost(window.location.hostname);
+  const targetHost = normalizeHost(
+    siteSettings.geo_domain_redirect_target_domain
+  );
+  const configuredMainHost = String(
+    siteSettings.geo_domain_redirect_main_domain ?? ""
+  ).trim();
+  const mainHost = normalizeHost(configuredMainHost || targetHost);
+  const allowedDomains = parseAllowedDomains(
+    siteSettings.geo_domain_redirect_allowed_domains
+  );
+
+  if (!shouldForceMainDomain({ currentHost, allowedDomains, mainHost })) {
+    return false;
+  }
+
+  const url = buildRedirectUrl(mainHost);
+
+  if (url) {
+    window.location.replace(url);
+  }
+
+  return true;
+}
 
 function checkGeoDomainRedirect(api) {
   const siteSettings = api.container.lookup("service:site-settings");
@@ -83,6 +116,12 @@ export default {
 
   initialize() {
     withPluginApi((api) => {
+      const siteSettings = api.container.lookup("service:site-settings");
+
+      if (forceMainDomainIfNeeded(siteSettings)) {
+        return;
+      }
+
       api.onPageChange(() => {
         if (hasChecked) {
           return;

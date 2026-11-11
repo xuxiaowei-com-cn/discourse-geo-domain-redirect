@@ -34,6 +34,7 @@
 - 忽略记录写入浏览器缓存（`localStorage`），不使用服务端存储，也不依赖 Cookie。
 - 请求头、国家代码、目标域名、稍后提醒时长均可通过站点设置修改，不需要改代码。
 - 国家接口可以选择使用当前浏览器访问的域名，或使用配置的中国域名（例如 `www.xuxiaowei.com.cn`）。
+- 可配置允许访问的域名/子域名（支持 `*` 通配符），未授权域名强制跳转到主站。
 - 提示失败、接口失败或浏览器禁用存储时不会影响页面正常使用。
 
 ## 安装
@@ -68,6 +69,8 @@ su discourse -c 'RAILS_ENV=production LOAD_PLUGINS=1 bundle exec rake assets:pre
 | `geo_domain_redirect_header`                        | `Ali-IP-Country`       | 携带国家代码的请求头名称                                       |
 | `geo_domain_redirect_country_code`                  | `CN`                   | 触发提示的国家代码                                             |
 | `geo_domain_redirect_target_domain`                 | `www.xuxiaowei.com.cn` | 提示前往的域名，不包含协议和路径                               |
+| `geo_domain_redirect_main_domain`                   | 空                     | 未授权域名强制跳转到的主站域名；留空时使用目标域名             |
+| `geo_domain_redirect_allowed_domains`               | 空                     | 允许访问的域名/子域名列表，支持 `*` 通配符；留空不启用限制     |
 | `geo_domain_redirect_use_target_domain_for_country` | 关                     | 从目标中国域名请求国家接口；关闭时使用当前浏览器访问的域名     |
 | `geo_domain_redirect_snooze_options`                | `1\|7\|30`             | 可选的稍后提醒时长（天），每个值显示为一个按钮，按填写顺序排列 |
 
@@ -90,6 +93,33 @@ https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json
 ```
 
 适用于当前域名没有透传 `Ali-IP-Country`、但中国域名所在 CDN 会写入该请求头的情况。跨域请求要求目标域名也安装并启用本插件；接口返回 `Access-Control-Allow-Origin: *`，且请求不携带 Cookie。目标域名如果被 CDN 缓存了接口响应，需要确保遵循 `Cache-Control: no-store` 或单独配置不缓存。
+
+### 限制访问域名
+
+`geo_domain_redirect_allowed_domains` 用于限制哪些域名可以正常使用本站。配置后，前端 JS 会检查 `window.location.hostname`：
+
+- 匹配允许列表：继续正常加载；
+- 不匹配，且配置了主站域名：使用 `window.location.replace()` 强制跳转到主站，并保留当前路径、查询参数和锚点；
+- 允许列表为空：不启用限制；
+- `geo_domain_redirect_main_domain` 为空时，使用 `geo_domain_redirect_target_domain` 作为主站；
+- 当前域名等于主站域名时不会再次跳转，避免循环。
+
+允许列表是列表设置，在管理后台输入后回车添加，例如：
+
+```text
+www.xuxiaowei.com.cn
+xuxiaowei.com.cn
+*.xuxiaowei.com.cn
+www.xuxiaowei.io
+xuxiaowei.io
+*.xuxiaowei.io
+```
+
+`*.example.com` 只匹配子域名，不匹配 `example.com` 本身，因此主域名需要单独添加。支持 `*` 通配符，例如 `www.*.example.com`。开发环境使用 `localhost` 时，也要把 `localhost` 加入允许列表。
+
+通配符会信任所有匹配的子域名，请只配置自己能够控制的域名；只配置 `*` 相当于放行所有域名。
+
+> 该限制只在前端 JS 中执行，用户禁用 JS 时无法阻止页面内容加载。若需要严格防止他人把域名解析到服务器，仍建议在 Nginx、CDN 或负载均衡层增加 Host 白名单校验。
 
 ## 请求头要求
 

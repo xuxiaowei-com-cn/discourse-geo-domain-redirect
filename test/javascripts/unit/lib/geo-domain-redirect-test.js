@@ -3,9 +3,12 @@ import {
   buildCountryEndpoint,
   buildRedirectUrl,
   ignorePrompt,
+  isHostAllowed,
   isPromptSuppressed,
   normalizeHost,
+  parseAllowedDomains,
   parseSnoozeOptions,
+  shouldForceMainDomain,
   shouldPrompt,
   snoozePrompt,
   STORAGE_KEYS,
@@ -70,6 +73,105 @@ module("Unit | Lib | geo-domain-redirect", function () {
       "accepts an array"
     );
     assert.deepEqual(parseSnoozeOptions(""), [], "returns an empty list");
+  });
+
+  test("parseAllowedDomains normalizes and preserves wildcards", function (assert) {
+    assert.deepEqual(
+      parseAllowedDomains(
+        " https://WWW.Example.com/path | *.example.com | www.example.com "
+      ),
+      ["www.example.com", "*.example.com"],
+      "normalizes entries and removes duplicates"
+    );
+    assert.deepEqual(
+      parseAllowedDomains(["example.com", "*.example.com"]),
+      ["example.com", "*.example.com"],
+      "accepts an array"
+    );
+    assert.deepEqual(parseAllowedDomains(""), [], "returns an empty list");
+  });
+
+  test("isHostAllowed supports exact hosts and wildcards", function (assert) {
+    const allowed = parseAllowedDomains(
+      "example.com|*.example.com|www.foo.test"
+    );
+
+    assert.true(isHostAllowed("example.com", allowed), "matches the apex");
+    assert.true(
+      isHostAllowed("WWW.EXAMPLE.COM", allowed),
+      "matches case-insensitively"
+    );
+    assert.true(
+      isHostAllowed("foo.example.com", allowed),
+      "matches one subdomain"
+    );
+    assert.true(
+      isHostAllowed("a.b.example.com", allowed),
+      "matches nested subdomains"
+    );
+    assert.true(
+      isHostAllowed("www.foo.test", allowed),
+      "matches an exact host with a dot"
+    );
+    assert.false(
+      isHostAllowed("example.com.evil.com", allowed),
+      "does not match a suffix"
+    );
+    assert.false(
+      isHostAllowed("evil-example.com", allowed),
+      "does not match a partial label"
+    );
+    assert.false(
+      isHostAllowed("example.com", parseAllowedDomains("*.example.com")),
+      "a wildcard does not include the apex"
+    );
+    assert.false(isHostAllowed("other.com", allowed), "rejects unlisted hosts");
+  });
+
+  test("shouldForceMainDomain redirects only unlisted hosts", function (assert) {
+    const allowedDomains = parseAllowedDomains("www.example.com|*.example.com");
+    const mainHost = "www.example.com";
+
+    assert.true(
+      shouldForceMainDomain({
+        currentHost: "evil.com",
+        allowedDomains,
+        mainHost,
+      }),
+      "forces an unlisted host"
+    );
+    assert.false(
+      shouldForceMainDomain({
+        currentHost: "foo.example.com",
+        allowedDomains,
+        mainHost,
+      }),
+      "keeps an allowed subdomain"
+    );
+    assert.false(
+      shouldForceMainDomain({
+        currentHost: mainHost,
+        allowedDomains,
+        mainHost,
+      }),
+      "never redirects the main host to itself"
+    );
+    assert.false(
+      shouldForceMainDomain({
+        currentHost: "evil.com",
+        allowedDomains: [],
+        mainHost,
+      }),
+      "does nothing when the allowlist is empty"
+    );
+    assert.false(
+      shouldForceMainDomain({
+        currentHost: "evil.com",
+        allowedDomains,
+        mainHost: "",
+      }),
+      "does nothing without a main host"
+    );
   });
 
   test("buildCountryEndpoint builds an absolute endpoint", function (assert) {
