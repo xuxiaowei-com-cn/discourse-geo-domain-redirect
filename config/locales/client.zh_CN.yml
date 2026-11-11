@@ -1,10 +1,12 @@
 zh_CN:
   js:
     geo_domain_redirect:
-      title: "访问中国站点"
-      description: "检测到您正在从中国访问，建议使用 %{domain} 以获得更快的访问速度。"
-      hint: "您可以暂时或永久关闭此提醒，选择结果仅保存在当前浏览器中。"
-      go: "前往 %{domain}"
+      title: "访问主站"
+      main_domain: "主站域名："
+      description: "检测到您可能正在从中国访问。当前网站仅面向非中国地区提供网络加速服务，建议前往主站以获得更快的访问速度。"
+      login_notice: "如果在此站点登录，将跳转到主站域名。登录后可手动返回当前网站，登录状态会保留。"
+      hint: "提醒设置仅保存在当前浏览器。"
+      go: "前往主站"
       snooze_heading: "稍后提醒"
-      snooze: "%{days} 天内不再提醒"
+      snooze: "%{count} 天内不再提醒"
       ignore: "永久忽略"

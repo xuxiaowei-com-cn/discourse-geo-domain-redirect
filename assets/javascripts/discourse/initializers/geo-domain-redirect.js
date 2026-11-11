@@ -16,6 +16,14 @@ import {
 
 let hasChecked = false;
 
+function resolveMainHost(siteSettings, targetHost) {
+  const configuredMainHost = String(
+    siteSettings.geo_domain_redirect_main_domain ?? ""
+  ).trim();
+
+  return normalizeHost(configuredMainHost || targetHost);
+}
+
 function forceMainDomainIfNeeded(siteSettings) {
   if (!siteSettings.geo_domain_redirect_enabled) {
     return false;
@@ -25,10 +33,7 @@ function forceMainDomainIfNeeded(siteSettings) {
   const targetHost = normalizeHost(
     siteSettings.geo_domain_redirect_target_domain
   );
-  const configuredMainHost = String(
-    siteSettings.geo_domain_redirect_main_domain ?? ""
-  ).trim();
-  const mainHost = normalizeHost(configuredMainHost || targetHost);
+  const mainHost = resolveMainHost(siteSettings, targetHost);
   const allowedDomains = parseAllowedDomains(
     siteSettings.geo_domain_redirect_allowed_domains
   );
@@ -55,6 +60,7 @@ function checkGeoDomainRedirect(api) {
   const targetHost = normalizeHost(
     siteSettings.geo_domain_redirect_target_domain
   );
+  const mainHost = resolveMainHost(siteSettings, targetHost);
   const currentHost = normalizeHost(window.location.hostname);
 
   if (!targetHost || currentHost === targetHost) {
@@ -105,7 +111,7 @@ function checkGeoDomainRedirect(api) {
 
       const modal = api.container.lookup("service:modal");
       return modal.show(GeoDomainRedirectModal, {
-        model: { targetHost, snoozeOptions },
+        model: { targetHost, mainHost, snoozeOptions },
       });
     })
     .catch(() => {

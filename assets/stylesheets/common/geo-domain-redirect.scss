@@ -1,4 +1,17 @@
 .geo-domain-redirect-modal {
+  &__main-site {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    margin-bottom: 0.75em;
+    font-weight: bold;
+  }
+
+  &__notice {
+    margin-top: 0.75em;
+    color: var(--primary-high);
+  }
+
   &__hint {
     margin-top: 0.75em;
     color: var(--primary-medium);

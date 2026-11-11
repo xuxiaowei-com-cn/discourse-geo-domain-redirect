@@ -1,10 +1,14 @@
 en:
   js:
     geo_domain_redirect:
-      title: "Visit our China site"
-      description: "We noticed you are visiting from China. Use %{domain} for a faster experience."
-      hint: "You can hide this reminder for a while or permanently. Your choice is stored only in this browser."
-      go: "Go to %{domain}"
+      title: "Visit the main site"
+      main_domain: "Main site:"
+      description: "We noticed you may be visiting from China. This site only provides network acceleration outside China; please use the main site for a faster experience."
+      login_notice: "If you log in here, you will be redirected to the main site. You can manually return to this site afterwards and stay logged in."
+      hint: "Your reminder preference is stored only in this browser."
+      go: "Go to main site"
       snooze_heading: "Remind me later"
-      snooze: "Don't remind me for %{days} days"
+      snooze:
+        one: "Don't remind me for %{count} day"
+        other: "Don't remind me for %{count} days"
       ignore: "Never remind me again"

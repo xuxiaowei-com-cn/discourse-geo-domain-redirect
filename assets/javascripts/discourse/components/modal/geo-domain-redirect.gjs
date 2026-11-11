@@ -1,8 +1,6 @@
 import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
-import { trustHTML } from "@ember/template";
-import escape from "discourse/lib/escape";
 import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
 import { i18n } from "discourse-i18n";
@@ -18,12 +16,12 @@ export default class GeoDomainRedirectModal extends Component {
     return this.args.model.targetHost;
   }
 
-  get description() {
-    const url = buildRedirectUrl(this.targetHost);
-    const label = escape(this.targetHost);
-    const domain = url ? `<a href="${escape(url)}">${label}</a>` : label;
+  get mainHost() {
+    return this.args.model.mainHost || this.targetHost;
+  }
 
-    return trustHTML(i18n("geo_domain_redirect.description", { domain }));
+  get mainUrl() {
+    return buildRedirectUrl(this.mainHost);
   }
 
   get snoozeOptions() {
@@ -31,13 +29,9 @@ export default class GeoDomainRedirectModal extends Component {
     return options.length > 0 ? options : [7];
   }
 
-  get goLabel() {
-    return i18n("geo_domain_redirect.go", { domain: this.targetHost });
-  }
-
   @action
-  goToTarget() {
-    const url = buildRedirectUrl(this.targetHost);
+  goToMain() {
+    const url = this.mainUrl;
 
     this.args.closeModal();
 
@@ -65,7 +59,14 @@ export default class GeoDomainRedirectModal extends Component {
       @title={{i18n "geo_domain_redirect.title"}}
     >
       <:body>
-        <p>{{this.description}}</p>
+        <p class="geo-domain-redirect-modal__main-site">
+          <span>{{i18n "geo_domain_redirect.main_domain"}}</span>
+          <a href={{this.mainUrl}}>{{this.mainHost}}</a>
+        </p>
+        <p>{{i18n "geo_domain_redirect.description"}}</p>
+        <p class="geo-domain-redirect-modal__notice">
+          {{i18n "geo_domain_redirect.login_notice"}}
+        </p>
         <p class="geo-domain-redirect-modal__hint">
           {{i18n "geo_domain_redirect.hint"}}
         </p>
@@ -78,7 +79,10 @@ export default class GeoDomainRedirectModal extends Component {
               <DButton
                 class="btn-default"
                 @action={{fn this.snooze days}}
-                @translatedLabel={{i18n "geo_domain_redirect.snooze" days=days}}
+                @translatedLabel={{i18n
+                  "geo_domain_redirect.snooze"
+                  count=days
+                }}
               />
             {{/each}}
           </div>
@@ -87,8 +91,8 @@ export default class GeoDomainRedirectModal extends Component {
       <:footer>
         <DButton
           class="btn-primary"
-          @action={{this.goToTarget}}
-          @translatedLabel={{this.goLabel}}
+          @action={{this.goToMain}}
+          @label="geo_domain_redirect.go"
         />
         <DButton
           class="btn-transparent"
