@@ -1,9 +1,9 @@
 import { schedule } from "@ember/runloop";
-import { ajax } from "discourse/lib/ajax";
 import getURL from "discourse/lib/get-url";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import GeoDomainRedirectModal from "../components/modal/geo-domain-redirect";
 import {
+  buildCountryEndpoint,
   isPromptSuppressed,
   normalizeHost,
   parseSnoozeOptions,
@@ -38,11 +38,24 @@ function checkGeoDomainRedirect(api) {
   const snoozeOptions = parseSnoozeOptions(
     siteSettings.geo_domain_redirect_snooze_options
   );
+  const countryEndpoint =
+    (siteSettings.geo_domain_redirect_use_target_domain_for_country &&
+      buildCountryEndpoint(targetHost)) ||
+    getURL("/geo-domain-redirect/country.json");
 
-  ajax(getURL("/geo-domain-redirect/country.json"), {
-    dataType: "json",
-    cache: false,
+  fetch(countryEndpoint, {
+    cache: "no-store",
+    credentials: "omit",
+    headers: { Accept: "application/json" },
+    mode: "cors",
   })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Country endpoint returned ${response.status}`);
+      }
+
+      return response.json();
+    })
     .then((data) => {
       if (
         !shouldPrompt({

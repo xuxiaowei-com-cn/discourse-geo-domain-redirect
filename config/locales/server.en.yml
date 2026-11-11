@@ -4,4 +4,5 @@ en:
     geo_domain_redirect_header: "Request header that carries the visitor's country code. Keep Ali-IP-Country unless your CDN or reverse proxy uses another header."
     geo_domain_redirect_country_code: "Country code that triggers the prompt, for example CN."
     geo_domain_redirect_target_domain: "Domain to suggest, without a scheme or path, for example www.xuxiaowei.com.cn."
+    geo_domain_redirect_use_target_domain_for_country: "Request the country endpoint from the configured target domain instead of the domain the visitor is currently using. Enable this when the current domain does not forward the Ali-IP-Country header. The target domain must run this plugin and allow cross-origin requests; this plugin adds the CORS header to the endpoint."
     geo_domain_redirect_snooze_options: "Durations, in days, that visitors can choose from when they want to be reminded later. Each value is shown as a separate button, in the order entered. Enter one value per item."

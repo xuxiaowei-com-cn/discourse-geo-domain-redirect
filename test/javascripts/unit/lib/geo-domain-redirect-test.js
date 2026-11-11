@@ -1,5 +1,6 @@
 import { module, test } from "qunit";
 import {
+  buildCountryEndpoint,
   buildRedirectUrl,
   ignorePrompt,
   isPromptSuppressed,
@@ -69,6 +70,24 @@ module("Unit | Lib | geo-domain-redirect", function () {
       "accepts an array"
     );
     assert.deepEqual(parseSnoozeOptions(""), [], "returns an empty list");
+  });
+
+  test("buildCountryEndpoint builds an absolute endpoint", function (assert) {
+    assert.strictEqual(
+      buildCountryEndpoint("https://www.xuxiaowei.com.cn/"),
+      "https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json",
+      "uses the configured target domain"
+    );
+    assert.strictEqual(
+      buildCountryEndpoint("www.xuxiaowei.com.cn", "/custom.json"),
+      "https://www.xuxiaowei.com.cn/custom.json",
+      "supports a custom path"
+    );
+    assert.strictEqual(
+      buildCountryEndpoint(""),
+      null,
+      "returns null without a target domain"
+    );
   });
 
   test("buildRedirectUrl keeps the current path, query, and hash", function (assert) {

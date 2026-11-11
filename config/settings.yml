@@ -11,6 +11,9 @@ plugins:
   geo_domain_redirect_target_domain:
     default: "www.xuxiaowei.com.cn"
     client: true
+  geo_domain_redirect_use_target_domain_for_country:
+    default: false
+    client: true
   geo_domain_redirect_snooze_options:
     type: list
     default: "1|7|30"

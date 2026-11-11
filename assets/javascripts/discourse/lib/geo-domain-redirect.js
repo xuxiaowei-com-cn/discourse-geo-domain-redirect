@@ -6,6 +6,7 @@ export const STORAGE_KEYS = Object.freeze({
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_SNOOZE_DAYS = 7;
 const MAX_SNOOZE_DAYS = 3650;
+const COUNTRY_ENDPOINT_PATH = "/geo-domain-redirect/country.json";
 
 function defaultStorage() {
   if (typeof window === "undefined") {
@@ -82,6 +83,11 @@ export function parseSnoozeOptions(value) {
   }
 
   return options;
+}
+
+export function buildCountryEndpoint(targetHost, path = COUNTRY_ENDPOINT_PATH) {
+  const host = normalizeHost(targetHost);
+  return host ? `https://${host}${path}` : null;
 }
 
 export function buildRedirectUrl(

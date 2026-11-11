@@ -12,7 +12,7 @@
    { "country": "CN" }
    ```
 
-   该接口设置 `Cache-Control: no-store, private` 和 `Vary: Ali-IP-Country`，避免不同访客之间缓存串数据。
+   该接口设置 `Cache-Control: no-store, private`、`Vary: Ali-IP-Country` 和 `Access-Control-Allow-Origin: *`，避免不同访客之间缓存串数据，也允许从当前域名跨域读取结果。
 
 2. 前端初始化脚本获取当前域名和国家代码，全部判断都在前端 JavaScript 中完成：
    - 当前 `window.location.hostname` 是否等于目标域名；
@@ -33,6 +33,7 @@
   - 永久忽略。
 - 忽略记录写入浏览器缓存（`localStorage`），不使用服务端存储，也不依赖 Cookie。
 - 请求头、国家代码、目标域名、稍后提醒时长均可通过站点设置修改，不需要改代码。
+- 国家接口可以选择使用当前浏览器访问的域名，或使用配置的中国域名（例如 `www.xuxiaowei.com.cn`）。
 - 提示失败、接口失败或浏览器禁用存储时不会影响页面正常使用。
 
 ## 安装
@@ -61,21 +62,38 @@ su discourse -c 'RAILS_ENV=production LOAD_PLUGINS=1 bundle exec rake assets:pre
 
 ## 站点设置
 
-| 设置                                 | 默认值                 | 说明                                                           |
-| ------------------------------------ | ---------------------- | -------------------------------------------------------------- |
-| `geo_domain_redirect_enabled`        | 开                     | 插件总开关                                                     |
-| `geo_domain_redirect_header`         | `Ali-IP-Country`       | 携带国家代码的请求头名称                                       |
-| `geo_domain_redirect_country_code`   | `CN`                   | 触发提示的国家代码                                             |
-| `geo_domain_redirect_target_domain`  | `www.xuxiaowei.com.cn` | 提示前往的域名，不包含协议和路径                               |
-| `geo_domain_redirect_snooze_options` | `1\|7\|30`             | 可选的稍后提醒时长（天），每个值显示为一个按钮，按填写顺序排列 |
+| 设置                                                | 默认值                 | 说明                                                           |
+| --------------------------------------------------- | ---------------------- | -------------------------------------------------------------- |
+| `geo_domain_redirect_enabled`                       | 开                     | 插件总开关                                                     |
+| `geo_domain_redirect_header`                        | `Ali-IP-Country`       | 携带国家代码的请求头名称                                       |
+| `geo_domain_redirect_country_code`                  | `CN`                   | 触发提示的国家代码                                             |
+| `geo_domain_redirect_target_domain`                 | `www.xuxiaowei.com.cn` | 提示前往的域名，不包含协议和路径                               |
+| `geo_domain_redirect_use_target_domain_for_country` | 关                     | 从目标中国域名请求国家接口；关闭时使用当前浏览器访问的域名     |
+| `geo_domain_redirect_snooze_options`                | `1\|7\|30`             | 可选的稍后提醒时长（天），每个值显示为一个按钮，按填写顺序排列 |
 
 把 `geo_domain_redirect_target_domain` 改成其他域名后，旧域名下的忽略记录不会继续生效，这是有意设计的。
 
 `geo_domain_redirect_snooze_options` 是列表设置：在管理后台输入天数后回车即可添加多项，例如依次添加 `1`、`7`、`30`，提示框中就会出现「1 天内不再提醒」「7 天内不再提醒」「30 天内不再提醒」三个按钮。非正整数、超过 3650 的值会被前端忽略；如果全部无效，则回退为 7 天。
 
+### 国家接口使用哪个域名
+
+`geo_domain_redirect_use_target_domain_for_country` 关闭时，前端请求当前站点的相对地址：
+
+```text
+/geo-domain-redirect/country.json
+```
+
+开启时，前端直接请求目标中国域名：
+
+```text
+https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json
+```
+
+适用于当前域名没有透传 `Ali-IP-Country`、但中国域名所在 CDN 会写入该请求头的情况。跨域请求要求目标域名也安装并启用本插件；接口返回 `Access-Control-Allow-Origin: *`，且请求不携带 Cookie。目标域名如果被 CDN 缓存了接口响应，需要确保遵循 `Cache-Control: no-store` 或单独配置不缓存。
+
 ## 请求头要求
 
-`Ali-IP-Country` 必须由 CDN 或反向代理写入并转发到 Discourse 源站。如果 CDN 没有透传该请求头，接口会返回 `{"country":null}`，前端不会提示。
+`Ali-IP-Country` 必须由实际处理请求的域名（当前域名，或开启目标域名接口后请求的中国域名）的 CDN 或反向代理写入并转发到 Discourse 源站。如果 CDN 没有透传该请求头，接口会返回 `{"country":null}`，前端不会提示。
 
 可以用下面的命令验证：
 

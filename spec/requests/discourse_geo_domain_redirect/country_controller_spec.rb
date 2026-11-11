@@ -16,6 +16,18 @@ RSpec.describe "Geo domain redirect country endpoint", type: :request do
       expect(response.parsed_body).to eq("country" => "CN")
       expect(response.headers["Cache-Control"]).to include("no-store")
       expect(response.headers["Vary"]).to include("Ali-IP-Country")
+      expect(response.headers["Access-Control-Allow-Origin"]).to eq("*")
+    end
+
+    it "allows cross-origin requests from the current site" do
+      get "/geo-domain-redirect/country.json",
+          headers: {
+            "Ali-IP-Country" => "CN",
+            "Origin" => "https://www.xuxiaowei.io",
+          }
+
+      expect(response.status).to eq(200)
+      expect(response.headers["Access-Control-Allow-Origin"]).to eq("*")
     end
 
     it "normalizes the header value" do

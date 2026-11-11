@@ -10,6 +10,9 @@ module DiscourseGeoDomainRedirect
       # The response depends on a request header, so it must never be shared
       # between visitors or cached by a CDN or browser.
       response.headers["Cache-Control"] = "no-store, private"
+      # The frontend may request this endpoint from the configured target
+      # domain when the current domain does not forward the country header.
+      response.headers["Access-Control-Allow-Origin"] = "*"
       vary_header = SiteSetting.geo_domain_redirect_header.to_s.strip
       if DiscourseGeoDomainRedirect::Country.valid_header_name?(vary_header)
         response.headers["Vary"] = vary_header
