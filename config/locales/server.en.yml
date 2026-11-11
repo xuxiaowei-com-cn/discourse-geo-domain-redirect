@@ -1,0 +1,7 @@
+en:
+  site_settings:
+    geo_domain_redirect_enabled: "Enable the prompt that suggests the China domain to visitors whose request header reports the configured country."
+    geo_domain_redirect_header: "Request header that carries the visitor's country code. Keep Ali-IP-Country unless your CDN or reverse proxy uses another header."
+    geo_domain_redirect_country_code: "Country code that triggers the prompt, for example CN."
+    geo_domain_redirect_target_domain: "Domain to suggest, without a scheme or path, for example www.xuxiaowei.com.cn."
+    geo_domain_redirect_snooze_options: "Durations, in days, that visitors can choose from when they want to be reminded later. Each value is shown as a separate button, in the order entered. Enter one value per item."

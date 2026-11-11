@@ -1,0 +1,7 @@
+zh_CN:
+  site_settings:
+    geo_domain_redirect_enabled: "开启后，向来自指定国家的访客提示切换到中国站点域名。"
+    geo_domain_redirect_header: "携带访客国家代码的请求头。除非 CDN 或反向代理使用其他请求头，否则保持 Ali-IP-Country 不变。"
+    geo_domain_redirect_country_code: "触发提示的国家代码，例如 CN。"
+    geo_domain_redirect_target_domain: "提示访客前往的域名，不包含协议和路径，例如 www.xuxiaowei.com.cn。"
+    geo_domain_redirect_snooze_options: "访客选择稍后提醒时可选的时长（天）。每个值会显示为一个按钮，按填写顺序排列。每项填写一个数字。"

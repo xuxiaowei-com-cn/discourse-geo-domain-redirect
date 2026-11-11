@@ -1,0 +1,10 @@
+zh_CN:
+  js:
+    geo_domain_redirect:
+      title: "访问中国站点"
+      description: "检测到您正在从中国访问，建议使用 %{domain} 以获得更快的访问速度。"
+      hint: "您可以暂时或永久关闭此提醒，选择结果仅保存在当前浏览器中。"
+      go: "前往 %{domain}"
+      snooze_heading: "稍后提醒"
+      snooze: "%{days} 天内不再提醒"
+      ignore: "永久忽略"

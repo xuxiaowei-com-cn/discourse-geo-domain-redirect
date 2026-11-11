@@ -1,0 +1,22 @@
+.geo-domain-redirect-modal {
+  &__hint {
+    margin-top: 0.75em;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__snooze {
+    margin-top: 1em;
+  }
+
+  &__snooze-label {
+    margin-bottom: 0.5em;
+    font-weight: bold;
+  }
+
+  &__snooze-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+}

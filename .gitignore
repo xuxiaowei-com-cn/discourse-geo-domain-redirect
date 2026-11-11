@@ -1,0 +1,11 @@
+node_modules
+/gems
+/auto_generated
+.eslintcache
+
+.DS_Store
+.idea/
+*.iml
+.bundle/
+vendor/bundle/
+tmp/

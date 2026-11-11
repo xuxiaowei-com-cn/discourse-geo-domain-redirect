@@ -1,0 +1,10 @@
+en:
+  js:
+    geo_domain_redirect:
+      title: "Visit our China site"
+      description: "We noticed you are visiting from China. Use %{domain} for a faster experience."
+      hint: "You can hide this reminder for a while or permanently. Your choice is stored only in this browser."
+      go: "Go to %{domain}"
+      snooze_heading: "Remind me later"
+      snooze: "Don't remind me for %{days} days"
+      ignore: "Never remind me again"
