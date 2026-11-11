@@ -1,5 +1,6 @@
 import { module, test } from "qunit";
 import {
+  addCacheBuster,
   buildCountryEndpoint,
   buildRedirectUrl,
   ignorePrompt,
@@ -172,6 +173,28 @@ module("Unit | Lib | geo-domain-redirect", function () {
       }),
       "does nothing without a main host"
     );
+  });
+
+  test("addCacheBuster appends a random query parameter", function (assert) {
+    assert.strictEqual(
+      addCacheBuster("/geo-domain-redirect/country.json", "abc"),
+      "/geo-domain-redirect/country.json?t=abc",
+      "appends a query parameter"
+    );
+    assert.strictEqual(
+      addCacheBuster("/geo-domain-redirect/country.json?x=1", "abc"),
+      "/geo-domain-redirect/country.json?x=1&t=abc",
+      "keeps existing query parameters"
+    );
+    assert.strictEqual(
+      addCacheBuster(
+        "https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json",
+        "abc"
+      ),
+      "https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json?t=abc",
+      "works with absolute URLs"
+    );
+    assert.strictEqual(addCacheBuster("", "abc"), "", "keeps empty URLs");
   });
 
   test("buildCountryEndpoint builds an absolute endpoint", function (assert) {

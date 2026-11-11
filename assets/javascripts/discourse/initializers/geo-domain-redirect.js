@@ -3,6 +3,7 @@ import getURL from "discourse/lib/get-url";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import GeoDomainRedirectModal from "../components/modal/geo-domain-redirect";
 import {
+  addCacheBuster,
   buildCountryEndpoint,
   buildRedirectUrl,
   isPromptSuppressed,
@@ -71,10 +72,11 @@ function checkGeoDomainRedirect(api) {
   const snoozeOptions = parseSnoozeOptions(
     siteSettings.geo_domain_redirect_snooze_options
   );
-  const countryEndpoint =
+  const countryEndpoint = addCacheBuster(
     (siteSettings.geo_domain_redirect_use_target_domain_for_country &&
       buildCountryEndpoint(targetHost)) ||
-    getURL("/geo-domain-redirect/country.json");
+      getURL("/geo-domain-redirect/country.json")
+  );
 
   fetch(countryEndpoint, {
     cache: "no-store",

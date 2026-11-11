@@ -160,6 +160,18 @@ export function buildCountryEndpoint(targetHost, path = COUNTRY_ENDPOINT_PATH) {
   return host ? `https://${host}${path}` : null;
 }
 
+export function addCacheBuster(
+  url,
+  token = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+) {
+  if (!url) {
+    return url;
+  }
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}t=${encodeURIComponent(token)}`;
+}
+
 export function buildRedirectUrl(
   targetHost,
   currentLocation = window.location

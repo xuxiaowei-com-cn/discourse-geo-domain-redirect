@@ -12,7 +12,7 @@
    { "country": "CN" }
    ```
 
-   该接口设置 `Cache-Control: no-store, private`、`Vary: Ali-IP-Country` 和 `Access-Control-Allow-Origin: *`，避免不同访客之间缓存串数据，也允许从当前域名跨域读取结果。
+   该接口设置 `Cache-Control: no-store, private`、`Vary: Ali-IP-Country` 和 `Access-Control-Allow-Origin: *`，避免不同访客之间缓存串数据，也允许从当前域名跨域读取结果。前端每次请求还会附加 `t=<时间戳>-<随机串>` 查询参数，进一步避免浏览器或 CDN 复用旧结果。
 
 2. 前端初始化脚本获取当前域名和国家代码，全部判断都在前端 JavaScript 中完成：
    - 当前 `window.location.hostname` 是否等于目标域名；
@@ -90,6 +90,13 @@ su discourse -c 'RAILS_ENV=production LOAD_PLUGINS=1 bundle exec rake assets:pre
 
 ```text
 https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json
+```
+
+实际请求会自动附加随机参数，例如：
+
+```text
+/geo-domain-redirect/country.json?t=1762794000000-k3f9a2
+https://www.xuxiaowei.com.cn/geo-domain-redirect/country.json?t=1762794000000-k3f9a2
 ```
 
 适用于当前域名没有透传 `Ali-IP-Country`、但中国域名所在 CDN 会写入该请求头的情况。跨域请求要求目标域名也安装并启用本插件；接口返回 `Access-Control-Allow-Origin: *`，且请求不携带 Cookie。目标域名如果被 CDN 缓存了接口响应，需要确保遵循 `Cache-Control: no-store` 或单独配置不缓存。
