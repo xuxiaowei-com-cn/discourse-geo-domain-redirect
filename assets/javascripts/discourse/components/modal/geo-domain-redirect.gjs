@@ -9,7 +9,7 @@ import {
   ignorePrompt,
   parseSnoozeOptions,
   snoozePrompt,
-} from "../lib/geo-domain-redirect";
+} from "../../lib/geo-domain-redirect";
 
 export default class GeoDomainRedirectModal extends Component {
   get targetHost() {
