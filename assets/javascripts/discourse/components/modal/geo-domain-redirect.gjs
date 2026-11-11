@@ -1,6 +1,8 @@
 import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
+import { trustHTML } from "@ember/template";
+import escape from "discourse/lib/escape";
 import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
 import { i18n } from "discourse-i18n";
@@ -14,6 +16,14 @@ import {
 export default class GeoDomainRedirectModal extends Component {
   get targetHost() {
     return this.args.model.targetHost;
+  }
+
+  get description() {
+    const url = buildRedirectUrl(this.targetHost);
+    const label = escape(this.targetHost);
+    const domain = url ? `<a href="${escape(url)}">${label}</a>` : label;
+
+    return trustHTML(i18n("geo_domain_redirect.description", { domain }));
   }
 
   get snoozeOptions() {
@@ -55,7 +65,7 @@ export default class GeoDomainRedirectModal extends Component {
       @title={{i18n "geo_domain_redirect.title"}}
     >
       <:body>
-        <p>{{i18n "geo_domain_redirect.description" domain=this.targetHost}}</p>
+        <p>{{this.description}}</p>
         <p class="geo-domain-redirect-modal__hint">
           {{i18n "geo_domain_redirect.hint"}}
         </p>
